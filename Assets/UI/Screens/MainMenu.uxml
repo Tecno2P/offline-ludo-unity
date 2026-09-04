@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Shared.uss" />
+    <ui:VisualElement name="MainMenuRoot" class="screen-root">
+        <ui:Label text="OFFLINE LUDO" class="title-text" />
+        <ui:Label text="Play anywhere. No internet needed." class="subtitle-text" />
+
+        <ui:VisualElement class="card" style="align-items: center;">
+            <ui:Button name="PlayButton" text="PLAY" class="primary-button" style="width: 280px;" />
+            <ui:Button name="OfflineMultiplayerButton" text="OFFLINE MULTIPLAYER" class="secondary-button" style="width: 280px;" />
+            <ui:Button name="VsAiButton" text="VS AI" class="secondary-button" style="width: 280px;" />
+            <ui:Button name="LocalMultiplayerButton" text="LOCAL MULTIPLAYER" class="secondary-button" style="width: 280px;" />
+            <ui:VisualElement class="spacer-small" />
+            <ui:Button name="ProfileButton" text="PROFILE" class="secondary-button" style="width: 280px;" />
+            <ui:Button name="StatisticsButton" text="STATISTICS" class="secondary-button" style="width: 280px;" />
+            <ui:Button name="SettingsButton" text="SETTINGS" class="secondary-button" style="width: 280px;" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="ResumeBanner" class="card" style="display: none; align-items: center;">
+            <ui:Label text="You have a match in progress" style="color: rgb(240,240,245); font-size: 14px; margin-bottom: 8px;" />
+            <ui:Button name="ResumeButton" text="RESUME GAME" class="primary-button" style="width: 260px;" />
+        </ui:VisualElement>
+
+        <ui:Label name="VersionLabel" text="v0.1" style="color: rgb(90,93,108); font-size: 12px; position: absolute; bottom: 12px;" />
+    </ui:VisualElement>
+</ui:UXML>

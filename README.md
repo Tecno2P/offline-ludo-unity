@@ -100,11 +100,51 @@ assets or recorded audio, which need the Unity Editor / audio tools this chat do
 - The Android build pipeline itself (Gradle, keystore signing, Player Settings) — standard
   Unity Android setup, not something generated as code.
 
+## Phase 6 — Real UI screens (added, no placeholders)
+Actual UI Toolkit documents (`.uxml`/`.uss`) plus C# controllers wiring every button to the
+real backend already built — no "coming soon" screens, no dead buttons.
+
+- `UI/Screens/Shared.uss` — the full visual style (colors, buttons, cards, player rows, room
+  code display) used by every screen.
+- `MainMenu.uxml` / `MainMenuController.cs` — real resume-match detection (checks
+  `MatchSaveSystem.HasSavedMatch()`), routes to every mode.
+- `Profile.uxml` / `ProfileController.cs` — loads/saves the real local profile (name, avatar
+  cycling, level/XP/coins/wins/losses/win-rate from actual saved data), guest mode, reset.
+- `Lobby.uxml` / `LobbyController.cs` — the full LAN flow: create room (live player list from
+  `HostServer`, ready-check, start), join room (live discovered-room list from
+  `DiscoveryListener`, manual IP fallback), hands off to gameplay the moment `GAME_START`
+  actually arrives.
+- `Settings.uxml` / `SettingsController.cs` — sliders live-drive `AudioManager` volume while
+  dragging; Apply persists via `SettingsSystem` and applies FPS/quality settings for real.
+- `Statistics.uxml` / `StatisticsController.cs` — renders real profile stats and the actual
+  match history list (empty-state handled, not just assumed non-empty).
+- `VsAiSetup.uxml` / `VsAiSetupController.cs` — player count + AI difficulty selection builds
+  a real `GameManager` with the right slot configuration (works for both VS AI and Local
+  Multiplayer from the same screen).
+- `Victory.uxml` / `VictoryController.cs` — shows the actual winner, duration, and captures.
+- `UI/MatchStatsWiring.cs` — one shared helper (used by VS AI/Local and both LAN host/client
+  paths) that tracks real match duration + captures made, records the result to the local
+  profile via `Statistics.RecordMatchResult`, and feeds real numbers to the Victory screen.
+- `UI/UIScreenManager.cs` — the single navigation point; swaps `.uxml` documents on one
+  `UIDocument` and calls `GameSceneController.Initialize()` when a match actually starts.
+
+## What's still genuinely out of reach here
+- A Unity **scene file** (.unity) with these components pre-wired on GameObjects — scenes are
+  binary/YAML files the Editor manages; I can tell you the exact setup (empty GameObject →
+  add `GameSceneController` → call `Initialize()` from your menu/lobby flow) but can't hand you
+  a finished .unity file from this chat.
+- Custom hand-drawn/painted art style, licensed fonts, recorded voice/music — these require
+  either an artist/composer or licensed asset packs you'd add yourself in the Editor.
+- The Android build pipeline itself (Gradle, keystore signing, Player Settings) — standard
+  Unity Android setup, not something generated as code.
+
 ## Next phases (not built yet)
-- Full UI screens (menu, lobby, profile, settings) as real UI Toolkit (.uxml/.uss) documents
-- Localization (EN/HI) string tables
+- Localization (EN/HI) string tables — `Settings.uxml` already has the language dropdown wired
+  to persist a choice; actual string swapping isn't implemented yet
 - Vibration hooks (Android native, via Unity's Handheld.Vibrate or a haptics plugin)
-- VS AI / Local Multiplayer / LAN mode-select screens that instantiate the right session type
-  and call `GameSceneController.Initialize()`
+- 5-6 player extended mode (engine currently assumes the classic 4-color board)
+- Turn-timeout enforcement on the LAN host (works for local play; not yet ported to `HostServer`)
+- Host migration
+- Automated test suite
 
 Bata jo agla banau — usi tarah working code milega, stub nahi.

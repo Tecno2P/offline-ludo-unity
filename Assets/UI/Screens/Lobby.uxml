@@ -1,0 +1,44 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Shared.uss" />
+    <ui:VisualElement name="LobbyRoot" class="screen-root">
+        <ui:Button name="BackButton" text="&lt;" class="back-button" />
+        <ui:Label text="OFFLINE MULTIPLAYER" class="title-text" style="font-size: 28px;" />
+
+        <ui:VisualElement name="ModeSelectPanel" class="card" style="align-items: center;">
+            <ui:Button name="CreateRoomButton" text="CREATE ROOM" class="primary-button" style="width: 260px;" />
+            <ui:Button name="JoinRoomButton" text="JOIN ROOM" class="secondary-button" style="width: 260px;" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="HostPanel" class="card" style="display: none; align-items: center;">
+            <ui:Label text="ROOM CODE" style="color: rgb(160,163,178); font-size: 13px;" />
+            <ui:Label name="RoomCodeLabel" text="0000" class="room-code-text" />
+            <ui:Label name="HostNameLabel" text="Host: —" style="color: rgb(160,163,178); font-size: 13px; margin-bottom: 10px;" />
+
+            <ui:VisualElement name="HostPlayerList" style="width: 100%;" />
+
+            <ui:Button name="StartGameButton" text="START GAME" class="primary-button" style="width: 260px; margin-top: 10px;" />
+            <ui:Button name="CancelHostButton" text="CANCEL ROOM" class="danger-button" style="width: 260px;" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="JoinPanel" class="card" style="display: none; align-items: center;">
+            <ui:Label text="Nearby Rooms" style="color: rgb(160,163,178); font-size: 13px; margin-bottom: 6px;" />
+            <ui:VisualElement name="DiscoveredRoomList" style="width: 100%; max-height: 180px;" />
+
+            <ui:VisualElement class="spacer-small" />
+            <ui:Label text="Or enter room code manually" style="color: rgb(160,163,178); font-size: 12px;" />
+            <ui:TextField name="ManualIpField" placeholder-text="Host IP address" class="text-field" style="width: 240px;" />
+            <ui:TextField name="PlayerNameJoinField" placeholder-text="Your name" class="text-field" style="width: 240px;" />
+            <ui:Button name="JoinManualButton" text="JOIN" class="primary-button" style="width: 240px;" />
+            <ui:Button name="CancelJoinButton" text="CANCEL" class="secondary-button" style="width: 240px;" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="ConnectedPanel" class="card" style="display: none; align-items: center;">
+            <ui:Label text="Connected!" style="color: rgb(41,153,71); font-size: 18px; -unity-font-style: bold;" />
+            <ui:VisualElement name="ClientPlayerList" style="width: 100%; margin-top: 8px;" />
+            <ui:Button name="ReadyButton" text="READY" class="primary-button" style="width: 240px;" />
+            <ui:Label name="WaitingLabel" text="Waiting for host to start..." style="color: rgb(160,163,178); font-size: 13px; margin-top: 6px;" />
+        </ui:VisualElement>
+
+        <ui:Label name="StatusLabel" text="" style="color: rgb(217,46,46); font-size: 13px; margin-top: 10px;" />
+    </ui:VisualElement>
+</ui:UXML>

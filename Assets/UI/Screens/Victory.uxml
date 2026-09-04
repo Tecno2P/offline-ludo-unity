@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Shared.uss" />
+    <ui:VisualElement name="VictoryRoot" class="screen-root" style="background-color: rgba(22,24,33,0.92);">
+        <ui:VisualElement name="WinnerColorDot" class="player-color-dot" style="width: 64px; height: 64px; border-radius: 32px; margin-bottom: 12px;" />
+        <ui:Label name="WinnerLabel" text="RED WINS!" class="title-text" style="color: rgb(255,176,59);" />
+        <ui:Label text="Victory" class="subtitle-text" />
+
+        <ui:VisualElement class="card">
+            <ui:VisualElement class="stat-row"><ui:Label text="Duration" class="stat-label" /><ui:Label name="DurationValue" text="00:00" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label text="Your Tokens Finished" class="stat-label" /><ui:Label name="TokensFinishedValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label text="Captures Made" class="stat-label" /><ui:Label name="CapturesValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label text="XP Earned" class="stat-label" /><ui:Label name="XpEarnedValue" text="+0" class="stat-value" /></ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:Button name="PlayAgainButton" text="PLAY AGAIN" class="primary-button" style="width: 260px;" />
+        <ui:Button name="MainMenuButton" text="MAIN MENU" class="secondary-button" style="width: 260px;" />
+    </ui:VisualElement>
+</ui:UXML>

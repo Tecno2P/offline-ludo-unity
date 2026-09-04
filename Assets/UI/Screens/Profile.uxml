@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Shared.uss" />
+    <ui:VisualElement name="ProfileRoot" class="screen-root">
+        <ui:Button name="BackButton" text="&lt;" class="back-button" />
+
+        <ui:VisualElement class="avatar-circle">
+            <ui:Label name="AvatarInitialLabel" text="P" class="avatar-initial" />
+        </ui:VisualElement>
+
+        <ui:TextField name="PlayerNameField" placeholder-text="Enter your name" class="text-field" style="width: 260px;" />
+        <ui:Button name="ChangeAvatarButton" text="Change Avatar" class="secondary-button" style="width: 260px;" />
+
+        <ui:VisualElement class="card">
+            <ui:Label text="Profile" style="color: rgb(255,176,59); font-size: 16px; -unity-font-style: bold; margin-bottom: 8px;" />
+            <ui:VisualElement class="stat-row"><ui:Label text="Level" class="stat-label" /><ui:Label name="LevelValue" text="1" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label text="XP" class="stat-label" /><ui:Label name="XpValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label text="Coins" class="stat-label" /><ui:Label name="CoinsValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label text="Wins" class="stat-label" /><ui:Label name="WinsValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label text="Losses" class="stat-label" /><ui:Label name="LossesValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label text="Win Rate" class="stat-label" /><ui:Label name="WinRateValue" text="0%" class="stat-value" /></ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:Button name="SaveProfileButton" text="SAVE PROFILE" class="primary-button" style="width: 260px;" />
+        <ui:Button name="PlayAsGuestButton" text="PLAY AS GUEST" class="secondary-button" style="width: 260px;" />
+        <ui:Button name="ResetProgressButton" text="RESET PROGRESS" class="danger-button" style="width: 260px; margin-top: 16px;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,215 @@
+:root {
+    --color-bg: rgb(22, 24, 33);
+    --color-surface: rgb(32, 35, 48);
+    --color-surface-light: rgb(44, 48, 64);
+    --color-primary: rgb(255, 176, 59);
+    --color-primary-dark: rgb(214, 140, 32);
+    --color-text: rgb(240, 240, 245);
+    --color-text-dim: rgb(160, 163, 178);
+    --color-red: rgb(217, 46, 46);
+    --color-green: rgb(41, 153, 71);
+    --color-yellow: rgb(242, 199, 26);
+    --color-blue: rgb(38, 89, 204);
+}
+
+.screen-root {
+    flex-grow: 1;
+    background-color: rgb(22, 24, 33);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.title-text {
+    font-size: 42px;
+    color: rgb(240, 240, 245);
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+}
+
+.subtitle-text {
+    font-size: 18px;
+    color: rgb(160, 163, 178);
+    margin-bottom: 24px;
+    -unity-text-align: middle-center;
+}
+
+.card {
+    background-color: rgb(32, 35, 48);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 8px 0;
+    width: 340px;
+}
+
+.primary-button {
+    background-color: rgb(255, 176, 59);
+    color: rgb(30, 20, 5);
+    border-radius: 12px;
+    -unity-font-style: bold;
+    font-size: 20px;
+    padding: 14px;
+    margin: 6px 0;
+    border-width: 0;
+    transition-property: scale;
+    transition-duration: 0.08s;
+}
+
+.primary-button:hover {
+    background-color: rgb(255, 190, 90);
+}
+
+.primary-button:active {
+    scale: 0.96 0.96;
+    background-color: rgb(214, 140, 32);
+}
+
+.secondary-button {
+    background-color: rgb(44, 48, 64);
+    color: rgb(240, 240, 245);
+    border-radius: 12px;
+    font-size: 16px;
+    padding: 12px;
+    margin: 4px 0;
+    border-width: 1px;
+    border-color: rgb(70, 74, 92);
+}
+
+.secondary-button:hover {
+    background-color: rgb(54, 58, 76);
+}
+
+.secondary-button:active {
+    scale: 0.97 0.97;
+}
+
+.danger-button {
+    background-color: rgb(217, 46, 46);
+    color: white;
+    border-radius: 12px;
+    font-size: 16px;
+    padding: 12px;
+    border-width: 0;
+}
+
+.text-field {
+    background-color: rgb(44, 48, 64);
+    border-radius: 10px;
+    color: rgb(240, 240, 245);
+    font-size: 18px;
+    padding: 10px;
+    margin: 6px 0;
+    border-width: 1px;
+    border-color: rgb(70, 74, 92);
+    -unity-text-align: middle-center;
+}
+
+.player-row {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(44, 48, 64);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 4px 0;
+}
+
+.player-color-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.dot-red { background-color: rgb(217, 46, 46); }
+.dot-green { background-color: rgb(41, 153, 71); }
+.dot-yellow { background-color: rgb(242, 199, 26); }
+.dot-blue { background-color: rgb(38, 89, 204); }
+
+.player-name-label {
+    color: rgb(240, 240, 245);
+    font-size: 16px;
+    flex-grow: 1;
+}
+
+.ready-badge {
+    color: rgb(41, 153, 71);
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.waiting-badge {
+    color: rgb(160, 163, 178);
+    font-size: 13px;
+}
+
+.room-code-text {
+    font-size: 48px;
+    color: rgb(255, 176, 59);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 6px;
+    margin: 12px 0;
+}
+
+.row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.spacer-small { height: 12px; }
+.spacer-medium { height: 24px; }
+
+.setting-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(44, 48, 64);
+}
+
+.setting-label {
+    color: rgb(240, 240, 245);
+    font-size: 16px;
+}
+
+.stat-row {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.stat-label { color: rgb(160, 163, 178); font-size: 15px; }
+.stat-value { color: rgb(240, 240, 245); font-size: 15px; -unity-font-style: bold; }
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    background-color: rgb(44, 48, 64);
+    color: rgb(240, 240, 245);
+    font-size: 20px;
+    -unity-text-align: middle-center;
+    border-width: 0;
+}
+
+.avatar-circle {
+    width: 84px;
+    height: 84px;
+    border-radius: 42px;
+    background-color: rgb(255, 176, 59);
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.avatar-initial {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(30, 20, 5);
+}
