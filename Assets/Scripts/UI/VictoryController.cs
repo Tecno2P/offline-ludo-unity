@@ -1,4 +1,5 @@
 using LudoGame.Core;
+using LudoGame.Localization;
 using LudoGame.Rendering;
 using UnityEngine.UIElements;
 
@@ -9,7 +10,14 @@ namespace LudoGame.UI
         public VictoryController(VisualElement root, UIScreenManager manager, PlayerColor winner,
             int durationSeconds, int tokensFinished, int captures, int xpEarned)
         {
-            root.Q<Label>("WinnerLabel").text = $"{winner.ToString().ToUpper()} WINS!";
+            root.Q<Label>("WinnerLabel").text = $"{winner.ToString().ToUpper()} {Loc.Get("wins_suffix")}";
+            root.Q<Label>("VictorySubtitleLabel").text = Loc.Get("victory_subtitle");
+            root.Q<Label>("DurationLabel").text = Loc.Get("duration");
+            root.Q<Label>("TokensFinishedLabel").text = Loc.Get("tokens_finished");
+            root.Q<Label>("CapturesLabel").text = Loc.Get("captures_made");
+            root.Q<Label>("XpEarnedLabel").text = Loc.Get("xp_earned");
+            root.Q<Button>("PlayAgainButton").text = Loc.Get("play_again");
+            root.Q<Button>("MainMenuButton").text = Loc.Get("main_menu");
 
             var dot = root.Q<VisualElement>("WinnerColorDot");
             dot.style.backgroundColor = new StyleColor(BoardBuilder.GetColor(winner));

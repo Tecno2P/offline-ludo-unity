@@ -1,3 +1,4 @@
+using LudoGame.Localization;
 using LudoGame.Offline;
 using LudoGame.Systems;
 using UnityEngine.UIElements;
@@ -8,6 +9,16 @@ namespace LudoGame.UI
     {
         public StatisticsController(VisualElement root, UIScreenManager manager)
         {
+            root.Q<Label>("TitleLabel").text = Loc.Get("statistics");
+            root.Q<Label>("TotalMatchesLabel").text = Loc.Get("total_matches");
+            root.Q<Label>("WinsLabel").text = Loc.Get("wins");
+            root.Q<Label>("LossesLabel").text = Loc.Get("losses");
+            root.Q<Label>("WinRateLabel").text = Loc.Get("win_rate");
+            root.Q<Label>("AiWinsLabel").text = Loc.Get("ai_wins");
+            root.Q<Label>("LocalWinsLabel").text = Loc.Get("local_wins");
+            root.Q<Label>("LanWinsLabel").text = Loc.Get("lan_wins");
+            root.Q<Label>("MatchHistoryLabel").text = Loc.Get("match_history");
+
             var profile = SaveSystem.Load();
 
             root.Q<Label>("TotalMatchesValue").text = profile.Matches.ToString();
@@ -47,7 +58,7 @@ namespace LudoGame.UI
 
             if (profile.MatchHistory.Count == 0)
             {
-                var empty = new Label("No matches played yet.");
+                var empty = new Label(Loc.Get("no_matches"));
                 empty.style.color = new StyleColor(new UnityEngine.Color(0.63f, 0.64f, 0.7f));
                 empty.style.fontSize = 13;
                 list.Add(empty);

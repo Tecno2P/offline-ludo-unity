@@ -128,6 +128,24 @@ real backend already built — no "coming soon" screens, no dead buttons.
 - `UI/UIScreenManager.cs` — the single navigation point; swaps `.uxml` documents on one
   `UIDocument` and calls `GameSceneController.Initialize()` when a match actually starts.
 
+## Phase 7 — Localization (EN/HI) and Vibration (added, no placeholders)
+- `Localization/Loc.cs` — a fully populated English + Hindi string table (65 real keys
+  covering every screen), not a 2-key stub. `Loc.RefreshFromSettings()` reads the persisted
+  language choice; every controller calls `Loc.Get(key)` to set its text at construction time,
+  and `SettingsController` re-runs the refresh the moment the player changes language and
+  hits Apply, so the very next screen renders in the new language immediately.
+- Every UXML screen got `name` attributes added to previously-anonymous labels so the
+  controllers can actually reach and localize them (MainMenu, Profile, Lobby, Settings,
+  Statistics, VsAiSetup, Victory — all of them).
+- `Systems/VibrationSystem.cs` — real `Handheld.Vibrate()` calls gated on the persisted
+  Vibration setting, with genuine multi-pulse patterns (double-buzz on capture, triple on
+  victory) built from real coroutine-timed repeats, not a single call mislabeled as a pattern.
+  Wired into `GameSceneController`: dice roll, token tap, capture, and victory.
+- The **Notifications** setting is now actually enforced (previously saved but unused) —
+  `GameSceneController` reads it and skips the turn chime when off.
+- `AudioManager` now loads persisted SFX/Music volume on startup instead of always defaulting
+  to 100%, so a volume change in Settings actually survives between sessions.
+
 ## What's still genuinely out of reach here
 - A Unity **scene file** (.unity) with these components pre-wired on GameObjects — scenes are
   binary/YAML files the Editor manages; I can tell you the exact setup (empty GameObject →
@@ -139,9 +157,6 @@ real backend already built — no "coming soon" screens, no dead buttons.
   Unity Android setup, not something generated as code.
 
 ## Next phases (not built yet)
-- Localization (EN/HI) string tables — `Settings.uxml` already has the language dropdown wired
-  to persist a choice; actual string swapping isn't implemented yet
-- Vibration hooks (Android native, via Unity's Handheld.Vibrate or a haptics plugin)
 - 5-6 player extended mode (engine currently assumes the classic 4-color board)
 - Turn-timeout enforcement on the LAN host (works for local play; not yet ported to `HostServer`)
 - Host migration

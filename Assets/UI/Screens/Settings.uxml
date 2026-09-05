@@ -2,39 +2,39 @@
     <Style src="Shared.uss" />
     <ui:VisualElement name="SettingsRoot" class="screen-root">
         <ui:Button name="BackButton" text="&lt;" class="back-button" />
-        <ui:Label text="SETTINGS" class="title-text" style="font-size: 28px;" />
+        <ui:Label name="TitleLabel" text="SETTINGS" class="title-text" style="font-size: 28px;" />
 
         <ui:VisualElement class="card">
             <ui:VisualElement class="setting-row">
-                <ui:Label text="Music Volume" class="setting-label" />
+                <ui:Label name="MusicVolumeLabel" text="Music Volume" class="setting-label" />
                 <ui:Slider name="MusicSlider" low-value="0" high-value="1" value="0.8" style="width: 140px;" />
             </ui:VisualElement>
             <ui:VisualElement class="setting-row">
-                <ui:Label text="SFX Volume" class="setting-label" />
+                <ui:Label name="SfxVolumeLabel" text="SFX Volume" class="setting-label" />
                 <ui:Slider name="SfxSlider" low-value="0" high-value="1" value="1" style="width: 140px;" />
             </ui:VisualElement>
             <ui:VisualElement class="setting-row">
-                <ui:Label text="Vibration" class="setting-label" />
+                <ui:Label name="VibrationLabel" text="Vibration" class="setting-label" />
                 <ui:Toggle name="VibrationToggle" value="true" />
             </ui:VisualElement>
             <ui:VisualElement class="setting-row">
-                <ui:Label text="Notifications" class="setting-label" />
+                <ui:Label name="NotificationsLabel" text="Notifications" class="setting-label" />
                 <ui:Toggle name="NotificationsToggle" value="true" />
             </ui:VisualElement>
             <ui:VisualElement class="setting-row">
-                <ui:Label text="Graphics Quality" class="setting-label" />
+                <ui:Label name="GraphicsQualityLabel" text="Graphics Quality" class="setting-label" />
                 <ui:DropdownField name="GraphicsQualityDropdown" choices="Low,Medium,High" index="1" style="width: 140px;" />
             </ui:VisualElement>
             <ui:VisualElement class="setting-row">
-                <ui:Label text="Animation Quality" class="setting-label" />
+                <ui:Label name="AnimationQualityLabel" text="Animation Quality" class="setting-label" />
                 <ui:DropdownField name="AnimationQualityDropdown" choices="Low,Medium,High" index="2" style="width: 140px;" />
             </ui:VisualElement>
             <ui:VisualElement class="setting-row">
-                <ui:Label text="FPS Target" class="setting-label" />
+                <ui:Label name="FpsTargetLabel" text="FPS Target" class="setting-label" />
                 <ui:DropdownField name="FpsDropdown" choices="30,60" index="1" style="width: 140px;" />
             </ui:VisualElement>
             <ui:VisualElement class="setting-row" style="border-bottom-width: 0;">
-                <ui:Label text="Language" class="setting-label" />
+                <ui:Label name="LanguageLabel" text="Language" class="setting-label" />
                 <ui:DropdownField name="LanguageDropdown" choices="English,हिन्दी" index="0" style="width: 140px;" />
             </ui:VisualElement>
         </ui:VisualElement>

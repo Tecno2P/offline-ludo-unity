@@ -5,7 +5,7 @@
         <ui:Label name="TitleLabel" text="VS AI" class="title-text" style="font-size: 28px;" />
 
         <ui:VisualElement class="card">
-            <ui:Label text="Number of Players" style="color: rgb(160,163,178); font-size: 13px; margin-bottom: 6px;" />
+            <ui:Label name="PlayerCountLabel" text="Number of Players" style="color: rgb(160,163,178); font-size: 13px; margin-bottom: 6px;" />
             <ui:RadioButtonGroup name="PlayerCountGroup" choices="2 Players,3 Players,4 Players" value="2" />
 
             <ui:VisualElement class="spacer-small" />

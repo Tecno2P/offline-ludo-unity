@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using LudoGame.Core;
 using LudoGame.Core.AI;
 using LudoGame.Gameplay;
+using LudoGame.Localization;
 using UnityEngine.UIElements;
 
 namespace LudoGame.UI
@@ -11,7 +12,10 @@ namespace LudoGame.UI
         public VsAiSetupController(VisualElement root, UIScreenManager manager, bool isVsAi)
         {
             var titleLabel = root.Q<Label>("TitleLabel");
-            titleLabel.text = isVsAi ? "VS AI" : "LOCAL MULTIPLAYER";
+            titleLabel.text = isVsAi ? Loc.Get("vs_ai") : Loc.Get("local_multiplayer");
+            root.Q<Label>("PlayerCountLabel").text = Loc.Get("number_of_players");
+            root.Q<Label>("DifficultyLabel").text = Loc.Get("ai_difficulty");
+            root.Q<Button>("StartMatchButton").text = Loc.Get("start_match");
 
             var playerCountGroup = root.Q<RadioButtonGroup>("PlayerCountGroup");
             var difficultyGroup = root.Q<RadioButtonGroup>("DifficultyGroup");

@@ -1,3 +1,4 @@
+using LudoGame.Offline;
 using UnityEngine;
 
 namespace LudoGame.Audio
@@ -30,6 +31,10 @@ namespace LudoGame.Audio
         private void Init()
         {
             _sfxSource = gameObject.AddComponent<AudioSource>();
+
+            var settings = SettingsSystem.Load();
+            SfxVolume = settings.SfxVolume;
+            MusicVolume = settings.MusicVolume;
 
             // Generate every clip once up front - synthesis is cheap but there's no reason
             // to redo it per-play.

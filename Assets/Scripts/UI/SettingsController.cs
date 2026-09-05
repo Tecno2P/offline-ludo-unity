@@ -1,4 +1,5 @@
 using LudoGame.Audio;
+using LudoGame.Localization;
 using LudoGame.Offline;
 using UnityEngine.UIElements;
 
@@ -8,6 +9,17 @@ namespace LudoGame.UI
     {
         public SettingsController(VisualElement root, UIScreenManager manager)
         {
+            root.Q<Label>("TitleLabel").text = Loc.Get("settings");
+            root.Q<Label>("MusicVolumeLabel").text = Loc.Get("music_volume");
+            root.Q<Label>("SfxVolumeLabel").text = Loc.Get("sfx_volume");
+            root.Q<Label>("VibrationLabel").text = Loc.Get("vibration");
+            root.Q<Label>("NotificationsLabel").text = Loc.Get("notifications");
+            root.Q<Label>("GraphicsQualityLabel").text = Loc.Get("graphics_quality");
+            root.Q<Label>("AnimationQualityLabel").text = Loc.Get("animation_quality");
+            root.Q<Label>("FpsTargetLabel").text = Loc.Get("fps_target");
+            root.Q<Label>("LanguageLabel").text = Loc.Get("language");
+            root.Q<Button>("ApplyButton").text = Loc.Get("apply");
+
             var settings = SettingsSystem.Load();
 
             var musicSlider = root.Q<Slider>("MusicSlider");
@@ -44,6 +56,7 @@ namespace LudoGame.UI
                 settings.LanguageCode = languageDropdown.index == 1 ? "hi" : "en";
 
                 SettingsSystem.Save(settings);
+                Loc.RefreshFromSettings(); // language may have just changed - re-read it immediately
 
                 UnityEngine.Application.targetFrameRate = settings.FpsTargetIndex == 0 ? 30 : 60;
                 UnityEngine.QualitySettings.SetQualityLevel(settings.GraphicsQualityIndex, true);

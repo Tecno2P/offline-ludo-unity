@@ -28,6 +28,7 @@ namespace LudoGame.UI
 
         private void Awake()
         {
+            LudoGame.Localization.Loc.RefreshFromSettings();
             _root = Document.rootVisualElement;
             ShowMainMenu();
         }

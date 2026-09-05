@@ -1,3 +1,4 @@
+using LudoGame.Localization;
 using LudoGame.Offline;
 using LudoGame.Systems;
 using UnityEngine.UIElements;
@@ -9,6 +10,17 @@ namespace LudoGame.UI
         public ProfileController(VisualElement root, UIScreenManager manager)
         {
             var profile = SaveSystem.Load();
+
+            root.Q<Label>("LevelLabel").text = Loc.Get("level");
+            root.Q<Label>("XpLabel").text = Loc.Get("xp");
+            root.Q<Label>("CoinsLabel").text = Loc.Get("coins");
+            root.Q<Label>("WinsLabel").text = Loc.Get("wins");
+            root.Q<Label>("LossesLabel").text = Loc.Get("losses");
+            root.Q<Label>("WinRateLabel").text = Loc.Get("win_rate");
+            root.Q<Button>("ChangeAvatarButton").text = Loc.Get("change_avatar");
+            root.Q<Button>("SaveProfileButton").text = Loc.Get("save_profile");
+            root.Q<Button>("PlayAsGuestButton").text = Loc.Get("play_as_guest");
+            root.Q<Button>("ResetProgressButton").text = Loc.Get("reset_progress");
 
             var nameField = root.Q<TextField>("PlayerNameField");
             nameField.value = profile.PlayerName;

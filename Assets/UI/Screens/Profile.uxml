@@ -12,12 +12,12 @@
 
         <ui:VisualElement class="card">
             <ui:Label text="Profile" style="color: rgb(255,176,59); font-size: 16px; -unity-font-style: bold; margin-bottom: 8px;" />
-            <ui:VisualElement class="stat-row"><ui:Label text="Level" class="stat-label" /><ui:Label name="LevelValue" text="1" class="stat-value" /></ui:VisualElement>
-            <ui:VisualElement class="stat-row"><ui:Label text="XP" class="stat-label" /><ui:Label name="XpValue" text="0" class="stat-value" /></ui:VisualElement>
-            <ui:VisualElement class="stat-row"><ui:Label text="Coins" class="stat-label" /><ui:Label name="CoinsValue" text="0" class="stat-value" /></ui:VisualElement>
-            <ui:VisualElement class="stat-row"><ui:Label text="Wins" class="stat-label" /><ui:Label name="WinsValue" text="0" class="stat-value" /></ui:VisualElement>
-            <ui:VisualElement class="stat-row"><ui:Label text="Losses" class="stat-label" /><ui:Label name="LossesValue" text="0" class="stat-value" /></ui:VisualElement>
-            <ui:VisualElement class="stat-row"><ui:Label text="Win Rate" class="stat-label" /><ui:Label name="WinRateValue" text="0%" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label name="LevelLabel" text="Level" class="stat-label" /><ui:Label name="LevelValue" text="1" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label name="XpLabel" text="XP" class="stat-label" /><ui:Label name="XpValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label name="CoinsLabel" text="Coins" class="stat-label" /><ui:Label name="CoinsValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label name="WinsLabel" text="Wins" class="stat-label" /><ui:Label name="WinsValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label name="LossesLabel" text="Losses" class="stat-label" /><ui:Label name="LossesValue" text="0" class="stat-value" /></ui:VisualElement>
+            <ui:VisualElement class="stat-row"><ui:Label name="WinRateLabel" text="Win Rate" class="stat-label" /><ui:Label name="WinRateValue" text="0%" class="stat-value" /></ui:VisualElement>
         </ui:VisualElement>
 
         <ui:Button name="SaveProfileButton" text="SAVE PROFILE" class="primary-button" style="width: 260px;" />

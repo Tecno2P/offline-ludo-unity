@@ -3,6 +3,8 @@ using System.Linq;
 using LudoGame.Audio;
 using LudoGame.Core;
 using LudoGame.Gameplay;
+using LudoGame.Offline;
+using LudoGame.Systems;
 using UnityEngine;
 
 namespace LudoGame.Rendering
@@ -18,11 +20,13 @@ namespace LudoGame.Rendering
         private ILudoGameSession _session;
         private BoardBuilder _board;
         private DiceView _dice;
+        private GameSettings _settings;
         private readonly Dictionary<(PlayerColor color, int id), TokenView> _tokens = new Dictionary<(PlayerColor, int), TokenView>();
 
         public void Initialize(ILudoGameSession session)
         {
             _session = session;
+            _settings = SettingsSystem.Load();
 
             _board = BoardPrefabHolder != null ? BoardPrefabHolder : gameObject.AddComponent<BoardBuilder>();
             _board.CellSize = CellSize;
@@ -78,6 +82,7 @@ namespace LudoGame.Rendering
         {
             if (_session == null || !_session.IsMyTurn) return;
             AudioManager.Instance.PlayButtonClick();
+            VibrationSystem.Light();
             _session.RequestMove(view.TokenId);
         }
 
@@ -93,7 +98,7 @@ namespace LudoGame.Rendering
             foreach (var kvp in _tokens)
                 kvp.Value.SetInteractable(kvp.Key.color == color);
 
-            if (_session.IsMyTurn)
+            if (_session.IsMyTurn && _settings.Notifications)
                 AudioManager.Instance.PlayTurnNotification();
         }
 
@@ -101,6 +106,7 @@ namespace LudoGame.Rendering
         {
             _dice.PlayRoll(args.Value);
             AudioManager.Instance.PlayDiceRoll();
+            VibrationSystem.Light();
         }
 
         private void HandleMoveApplied(MoveAppliedArgs args)
@@ -133,6 +139,7 @@ namespace LudoGame.Rendering
                 if (args.CapturedOpponent && _tokens.TryGetValue((args.CapturedColor, args.CapturedTokenId), out var capturedView))
                 {
                     AudioManager.Instance.PlayCapture();
+                    VibrationSystem.DoublePulse();
                     capturedView.PlayCapturedReaction(() =>
                     {
                         var (yardRow, yardCol) = BoardLayout.GetYardSlot(args.CapturedColor, args.CapturedTokenId);
@@ -145,6 +152,7 @@ namespace LudoGame.Rendering
         private void HandleGameWon(PlayerColor winner)
         {
             AudioManager.Instance.PlayVictory();
+            VibrationSystem.VictoryPattern();
             // Hook your victory banner/confetti UI here - this is the single event it needs.
         }
 

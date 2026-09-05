@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using LudoGame.Core;
 using LudoGame.LAN;
+using LudoGame.Localization;
 using LudoGame.Offline;
 using UnityEngine.UIElements;
 
@@ -18,6 +19,20 @@ namespace LudoGame.UI
         {
             _root = root;
             _manager = manager;
+
+            root.Q<Label>("TitleLabel").text = Loc.Get("offline_multiplayer");
+            root.Q<Button>("CreateRoomButton").text = Loc.Get("create_room");
+            root.Q<Button>("JoinRoomButton").text = Loc.Get("join_room");
+            root.Q<Label>("RoomCodeCaption").text = Loc.Get("room_code");
+            root.Q<Button>("StartGameButton").text = Loc.Get("start_game");
+            root.Q<Button>("CancelHostButton").text = Loc.Get("cancel_room");
+            root.Q<Label>("NearbyRoomsLabel").text = Loc.Get("nearby_rooms");
+            root.Q<Label>("ManualHintLabel").text = Loc.Get("manual_hint");
+            root.Q<Button>("JoinManualButton").text = Loc.Get("join");
+            root.Q<Button>("CancelJoinButton").text = Loc.Get("cancel");
+            root.Q<Label>("ConnectedLabel").text = Loc.Get("connected");
+            root.Q<Button>("ReadyButton").text = Loc.Get("ready");
+            root.Q<Label>("WaitingLabel").text = Loc.Get("waiting_for_host");
 
             var modeSelect = root.Q<VisualElement>("ModeSelectPanel");
             var hostPanel = root.Q<VisualElement>("HostPanel");
@@ -39,7 +54,7 @@ namespace LudoGame.UI
                 _hostFlow.OpenRoom();
 
                 root.Q<Label>("RoomCodeLabel").text = _hostFlow.RoomCode;
-                root.Q<Label>("HostNameLabel").text = $"Host: {profile.PlayerName}";
+                root.Q<Label>("HostNameLabel").text = Loc.Get("host_prefix") + profile.PlayerName;
 
                 _hostFlow.Server.OnPlayerJoined += _ => RefreshHostPlayerList(root);
                 _hostFlow.Server.OnPlayerDisconnected += _ => RefreshHostPlayerList(root);
@@ -53,7 +68,7 @@ namespace LudoGame.UI
                 if (_hostFlow == null) return;
                 if (!_hostFlow.Server.Room.AllReady)
                 {
-                    statusLabel.text = "Waiting for all players to be ready.";
+                    statusLabel.text = Loc.Get("waiting_for_players");
                     return;
                 }
                 _hostFlow.StartMatch();
@@ -83,7 +98,7 @@ namespace LudoGame.UI
             {
                 var ip = root.Q<TextField>("ManualIpField").value;
                 var name = root.Q<TextField>("PlayerNameJoinField").value;
-                if (string.IsNullOrWhiteSpace(ip)) { statusLabel.text = "Enter a host IP address."; return; }
+                if (string.IsNullOrWhiteSpace(ip)) { statusLabel.text = Loc.Get("enter_host_ip"); return; }
                 AttemptJoin(ip, string.IsNullOrWhiteSpace(name) ? SaveSystem.Load().PlayerName : name,
                     modeSelect, hostPanel, joinPanel, connectedPanel, statusLabel);
             };
@@ -99,7 +114,7 @@ namespace LudoGame.UI
             {
                 _joinFlow?.SendReady();
                 root.Q<Button>("ReadyButton").SetEnabled(false);
-                root.Q<Label>("WaitingLabel").text = "Ready! Waiting for host to start...";
+                root.Q<Label>("WaitingLabel").text = Loc.Get("ready_waiting");
             };
         }
 
@@ -123,7 +138,7 @@ namespace LudoGame.UI
                     root.Q<VisualElement>("ModeSelectPanel"), root.Q<VisualElement>("HostPanel"),
                     root.Q<VisualElement>("JoinPanel"), root.Q<VisualElement>("ConnectedPanel"),
                     root.Q<Label>("StatusLabel"));
-            }) { text = "JOIN" };
+            }) { text = Loc.Get("join") };
             joinButton.AddToClassList("secondary-button");
             row.Add(joinButton);
 
@@ -137,7 +152,7 @@ namespace LudoGame.UI
             bool ok = _joinFlow.JoinByIp(ip, playerName);
             if (!ok)
             {
-                statusLabel.text = "Could not reach that host. Check the IP and try again.";
+                statusLabel.text = Loc.Get("could_not_reach_host");
                 return;
             }
 
@@ -174,7 +189,7 @@ namespace LudoGame.UI
                 label.AddToClassList("player-name-label");
                 row.Add(label);
 
-                var badge = new Label(player.Ready ? "READY" : (player.Connected ? "Waiting" : "Disconnected"));
+                var badge = new Label(player.Ready ? Loc.Get("ready_badge") : (player.Connected ? Loc.Get("waiting_badge") : Loc.Get("disconnected_badge")));
                 badge.AddToClassList(player.Ready ? "ready-badge" : "waiting-badge");
                 row.Add(badge);
 
