@@ -28,6 +28,12 @@ namespace LudoGame.LAN
         private readonly DiceSystem _dice = new DiceSystem();
         private readonly object _stateLock = new object();
 
+        // Turn timeout: if the current player doesn't roll/move within this window, the host
+        // auto-skips them so the match never stalls on someone who went away (spec item 11).
+        public float TurnTimeoutSeconds = 30f;
+        private System.Threading.Timer _timeoutTimer;
+        private DateTime _turnStartedAtUtc;
+
         public event Action<ConnectedPlayer> OnPlayerJoined;
         public event Action<int> OnPlayerDisconnected;
         public event Action<NetMessage> OnBroadcastSent; // lets the host's own UI mirror every state change
@@ -37,6 +43,23 @@ namespace LudoGame.LAN
             Room = new RoomManager(hostName, maxPlayers);
         }
 
+        // Used when a client is promoted to host mid-match after the original host
+        // disconnected - picks up the authoritative state exactly where it was, rather than
+        // starting a fresh match.
+        public HostServer(RoomManager resumedRoom, GameState resumedState)
+        {
+            Room = resumedRoom;
+            State = resumedState;
+            _rules = new RulesSystem(State);
+            _turns = new TurnSystem(Room.Players.Select(p => p.Color).ToList());
+
+            // Rotate the fresh TurnSystem to line up with whichever player's turn it actually
+            // was when the old host went down - TurnSystem itself isn't part of GameState.
+            int safety = Room.Players.Count;
+            while (_turns.CurrentPlayer != State.CurrentTurn && safety-- > 0)
+                _turns.AdvanceTurn(extraTurn: false);
+        }
+
         public void Start()
         {
             _listener = new TcpListener(IPAddress.Any, Port);
@@ -44,12 +67,35 @@ namespace LudoGame.LAN
             _running = true;
             _acceptThread = new Thread(AcceptLoop) { IsBackground = true };
             _acceptThread.Start();
+
+            // Reset the turn clock here too - otherwise a resumed (migrated) host would start
+            // with a default/zero timestamp and immediately fire a false timeout on first tick.
+            _turnStartedAtUtc = DateTime.UtcNow;
+
+            // Ticks once a second, cheap enough to run for the whole session; only actually
+            // acts once the timeout window is exceeded for whoever's turn it currently is.
+            _timeoutTimer = new System.Threading.Timer(CheckTurnTimeout, null, 1000, 1000);
         }
 
         public void Stop()
         {
             _running = false;
             _listener?.Stop();
+            _timeoutTimer?.Dispose();
+        }
+
+        private void CheckTurnTimeout(object _)
+        {
+            if (State == null || _turns == null) return;
+
+            // AI doesn't exist on the host side (LAN players are all human) - a disconnected
+            // player still "has a turn" that must eventually time out too, not just an idle one.
+            double elapsed = (DateTime.UtcNow - _turnStartedAtUtc).TotalSeconds;
+            if (elapsed < TurnTimeoutSeconds) return;
+
+            var timedOutColor = State.CurrentTurn;
+            Broadcast(NetMessage.Create(MessageType.TURN_TIMEOUT, Room.SessionToken, 0, JsonConvert.SerializeObject(timedOutColor)));
+            AdvanceTurnAndBroadcast(extraTurn: false);
         }
 
         private void AcceptLoop()
@@ -163,12 +209,14 @@ namespace LudoGame.LAN
             };
             Send(client, NetMessage.Create(MessageType.ROOM_ACCEPT, Room.SessionToken, 0, JsonConvert.SerializeObject(accept)));
             OnPlayerJoined?.Invoke(player);
+            BroadcastRoster();
         }
 
         private void HandleReady(NetMessage msg)
         {
             var player = FindPlayer(msg.SenderPlayerId);
             if (player != null) player.Ready = true;
+            BroadcastRoster();
 
             if (Room.AllReady && State == null)
                 StartMatch();
@@ -192,6 +240,7 @@ namespace LudoGame.LAN
 
         private void BroadcastTurnStart()
         {
+            _turnStartedAtUtc = DateTime.UtcNow;
             Broadcast(NetMessage.Create(MessageType.TURN_START, Room.SessionToken, 0, JsonConvert.SerializeObject(State.CurrentTurn)));
         }
 
@@ -268,8 +317,11 @@ namespace LudoGame.LAN
 
         private void AdvanceTurnAndBroadcast(bool extraTurn)
         {
-            if (!extraTurn) _turns.AdvanceTurn(extraTurn: false);
-            State.CurrentTurn = _turns.CurrentPlayer;
+            lock (_stateLock)
+            {
+                if (!extraTurn) _turns.AdvanceTurn(extraTurn: false);
+                State.CurrentTurn = _turns.CurrentPlayer;
+            }
             BroadcastTurnStart();
         }
 
@@ -281,6 +333,7 @@ namespace LudoGame.LAN
                 {
                     Room.MarkDisconnected(p.PlayerId);
                     Broadcast(NetMessage.Create(MessageType.PLAYER_DISCONNECT, Room.SessionToken, p.PlayerId, "{}"));
+                    BroadcastRoster();
                     OnPlayerDisconnected?.Invoke(p.PlayerId);
                     break;
                 }
@@ -296,8 +349,14 @@ namespace LudoGame.LAN
             {
                 Broadcast(NetMessage.Create(MessageType.PLAYER_RECONNECT, Room.SessionToken, playerId,
                     JsonConvert.SerializeObject(State)));
+                BroadcastRoster();
             }
             return ok;
+        }
+
+        private void BroadcastRoster()
+        {
+            Broadcast(NetMessage.Create(MessageType.ROSTER_UPDATE, Room.SessionToken, 0, JsonConvert.SerializeObject(Room.BuildRoster())));
         }
 
         private ConnectedPlayer FindPlayer(int playerId)

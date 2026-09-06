@@ -5,13 +5,13 @@ using Newtonsoft.Json;
 
 namespace LudoGame.LAN
 {
-    // Wraps HostServer for the host device's own UI. The host is player 0 in RoomManager -
-    // this class lets the host's screen use the exact same ILudoGameSession contract as
-    // GameManager (local play) and LanClientSession (joiners).
+    // Wraps HostServer for the host device's own UI (whether it's the original host, or a
+    // client that got promoted to host via migration - Room.LocalPlayerId tells us which
+    // roster entry is "us" either way). Lets the host's screen use the exact same
+    // ILudoGameSession contract as GameManager (local play) and LanClientSession (joiners).
     public class LanHostSession : ILudoGameSession
     {
         private readonly HostServer _server;
-        public const int HostPlayerId = 0;
 
         public GameState State => _server.State;
         public PlayerColor CurrentTurn => _server.State.CurrentTurn;
@@ -23,12 +23,15 @@ namespace LudoGame.LAN
         public event Action<MoveAppliedArgs> OnMoveApplied;
         public event Action<PlayerColor> OnGameWon;
         public event Action<PlayerColor> OnPlayerDisconnected;
+        public event Action<PlayerColor> OnTurnTimedOut;
 
         private PlayerColor _lastBroadcastTurn;
 
         public LanHostSession(HostServer server)
         {
             _server = server;
+            HostColor = _server.Room.Players.Find(p => p.PlayerId == _server.Room.LocalPlayerId).Color;
+
             _server.OnBroadcastSent += HandleBroadcast;
             _server.OnPlayerDisconnected += id =>
             {
@@ -37,18 +40,13 @@ namespace LudoGame.LAN
             };
         }
 
-        public void StartMatch()
-        {
-            HostColor = _server.Room.Players.Find(p => p.PlayerId == HostPlayerId).Color;
-            _server.StartMatch();
-        }
+        public void StartMatch() => _server.StartMatch();
 
-        public void RequestRoll() => _server.RequestRollFromPlayer(HostPlayerId);
-        public void RequestMove(int tokenId) => _server.RequestMoveFromPlayer(HostPlayerId, tokenId);
+        public void RequestRoll() => _server.RequestRollFromPlayer(_server.Room.LocalPlayerId);
+        public void RequestMove(int tokenId) => _server.RequestMoveFromPlayer(_server.Room.LocalPlayerId, tokenId);
 
-        // The host has no separate timeout timer here - client turn-timeout (if you want it)
-        // should be enforced host-side by calling RequestRollFromPlayer/skip logic on a server
-        // timer per player. Left as a hook: call this from your MonoBehaviour's Update().
+        // The host enforces timeouts itself via a background timer in HostServer - nothing
+        // for this device's Update() loop to drive.
         public void Tick(float deltaTime) { }
 
         // Every state change flows through here, whether it originated from the host's own
@@ -90,6 +88,11 @@ namespace LudoGame.LAN
                 case MessageType.GAME_END:
                     var winner = JsonConvert.DeserializeObject<PlayerColor>(msg.PayloadJson);
                     OnGameWon?.Invoke(winner);
+                    break;
+
+                case MessageType.TURN_TIMEOUT:
+                    var timedOutColor = JsonConvert.DeserializeObject<PlayerColor>(msg.PayloadJson);
+                    OnTurnTimedOut?.Invoke(timedOutColor);
                     break;
             }
         }

@@ -35,16 +35,39 @@ namespace LudoGame.Rendering
             SpawnTokens();
             _dice = DiceView.Create(transform, _board.CellToWorld(BoardLayout.Center.row, BoardLayout.Center.col) + new Vector3(2f, 0, 0));
 
-            _session.OnTurnStarted += HandleTurnStarted;
-            _session.OnDiceRolled += HandleDiceRolled;
-            _session.OnMoveApplied += HandleMoveApplied;
-            _session.OnGameWon += HandleGameWon;
-            _session.OnPlayerDisconnected += HandlePlayerDisconnected;
+            SubscribeSession();
 
             AudioManager.Instance.PlayGameStart();
         }
 
         private void OnDestroy()
+        {
+            UnsubscribeSession();
+        }
+
+        // Called after host migration (or a client reconnect) hands back a new session
+        // object for what is logically the same match. Re-points every event subscription
+        // and snaps tokens to their authoritative positions - never rebuilds the board.
+        public void Rebind(ILudoGameSession newSession)
+        {
+            UnsubscribeSession();
+            _session = newSession;
+            SubscribeSession();
+            ResyncTokenPositions();
+            HandleTurnStarted(_session.CurrentTurn); // re-apply highlighting immediately, don't wait for the next natural turn event
+        }
+
+        private void SubscribeSession()
+        {
+            _session.OnTurnStarted += HandleTurnStarted;
+            _session.OnDiceRolled += HandleDiceRolled;
+            _session.OnMoveApplied += HandleMoveApplied;
+            _session.OnGameWon += HandleGameWon;
+            _session.OnPlayerDisconnected += HandlePlayerDisconnected;
+            _session.OnTurnTimedOut += HandleTurnTimedOut;
+        }
+
+        private void UnsubscribeSession()
         {
             if (_session == null) return;
             _session.OnTurnStarted -= HandleTurnStarted;
@@ -52,6 +75,22 @@ namespace LudoGame.Rendering
             _session.OnMoveApplied -= HandleMoveApplied;
             _session.OnGameWon -= HandleGameWon;
             _session.OnPlayerDisconnected -= HandlePlayerDisconnected;
+            _session.OnTurnTimedOut -= HandleTurnTimedOut;
+        }
+
+        // Snaps every token to wherever the (possibly newly-resynced) authoritative State
+        // says it should be - no animation, since this is a reconnect/migration catch-up,
+        // not a normal move.
+        private void ResyncTokenPositions()
+        {
+            foreach (var color in _session.State.ActiveColors)
+            {
+                foreach (var token in _session.State.GetTokens(color))
+                {
+                    if (_tokens.TryGetValue((color, token.TokenId), out var view))
+                        view.transform.position = WorldPositionFor(color, token.RelativePosition, token.TokenId);
+                }
+            }
         }
 
         private void Update()
@@ -160,6 +199,13 @@ namespace LudoGame.Rendering
         {
             AudioManager.Instance.PlayPlayerLeave();
             // Hook a "player disconnected" toast/UI here.
+        }
+
+        private void HandleTurnTimedOut(PlayerColor color)
+        {
+            // The host already advanced the turn by the time this fires - this is purely
+            // feedback so the player understands why the turn moved on without them acting.
+            AudioManager.Instance.PlayPlayerLeave();
         }
 
         private Vector3 WorldPositionFor(PlayerColor color, int relativePos, int tokenId)

@@ -146,6 +146,33 @@ real backend already built — no "coming soon" screens, no dead buttons.
 - `AudioManager` now loads persisted SFX/Music volume on startup instead of always defaulting
   to 100%, so a volume change in Settings actually survives between sessions.
 
+## Phase 8 — LAN turn-timeout + host migration (added, no placeholders)
+- `HostServer` now runs a real background timer (1-second tick) that auto-skips a player who
+  hasn't rolled/moved within `TurnTimeoutSeconds` (default 30s) — previously this only worked
+  for local play. Broadcasts a new `TURN_TIMEOUT` message so every client's UI can show
+  feedback (`GameSceneController` plays a sound for it).
+- **Host migration** — if the host disconnects mid-match, the match doesn't just die:
+  - `ROSTER_UPDATE` broadcasts (on join/ready/disconnect/reconnect) keep every client's copy
+    of the full player list current.
+  - `LanClientSession.AmINextHost()` — every surviving client independently computes the same
+    answer (lowest remaining PlayerId), so no extra negotiation round-trip is needed.
+  - `RoomManager.ResumeForMigration()` + a new `HostServer(RoomManager, GameState)` constructor
+    let the promoted client spin up its own host pre-loaded with the exact `GameState` it last
+    saw as a client — no data loss, tokens stay exactly where they were.
+  - The promoted host re-advertises under the *same room code* via `DiscoveryBroadcaster` for a
+    20-second rescue window; every other surviving client scans for that code and reconnects
+    with their original `PlayerId` (reusing the existing reconnect path), getting their color
+    and tokens back automatically.
+  - `LanMigrationCoordinator` ties this all together and is re-attached recursively to any
+    freshly reconnected client, so a *second* migration (if the newly-promoted host also drops)
+    is handled the same way.
+  - `GameSceneController.Rebind()` — swaps the live gameplay screen onto whatever new session
+    comes out of migration (promoted host or reconnected client) without rebuilding the board;
+    it re-subscribes events, snaps tokens to the authoritative state, and re-applies turn
+    highlighting immediately.
+  - `MatchStatsWiring` is re-run against the new session after migration so stats/XP/Victory
+    hand-off still work correctly even if the match ends on a different device than it started.
+
 ## What's still genuinely out of reach here
 - A Unity **scene file** (.unity) with these components pre-wired on GameObjects — scenes are
   binary/YAML files the Editor manages; I can tell you the exact setup (empty GameObject →
@@ -158,8 +185,6 @@ real backend already built — no "coming soon" screens, no dead buttons.
 
 ## Next phases (not built yet)
 - 5-6 player extended mode (engine currently assumes the classic 4-color board)
-- Turn-timeout enforcement on the LAN host (works for local play; not yet ported to `HostServer`)
-- Host migration
 - Automated test suite
 
 Bata jo agla banau — usi tarah working code milega, stub nahi.

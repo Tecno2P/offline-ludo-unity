@@ -13,6 +13,7 @@ namespace LudoGame.UI
         private readonly UIScreenManager _manager;
         private LanHostFlow _hostFlow;
         private LanJoinFlow _joinFlow;
+        private string _lastJoinedRoomCode; // null for manual-IP joins where no code was ever known
         private readonly Dictionary<string, RoomAdvertisement> _discovered = new Dictionary<string, RoomAdvertisement>();
 
         public LobbyController(VisualElement root, UIScreenManager manager)
@@ -99,6 +100,7 @@ namespace LudoGame.UI
                 var ip = root.Q<TextField>("ManualIpField").value;
                 var name = root.Q<TextField>("PlayerNameJoinField").value;
                 if (string.IsNullOrWhiteSpace(ip)) { statusLabel.text = Loc.Get("enter_host_ip"); return; }
+                _lastJoinedRoomCode = null; // manual IP entry never gives us a room code
                 AttemptJoin(ip, string.IsNullOrWhiteSpace(name) ? SaveSystem.Load().PlayerName : name,
                     modeSelect, hostPanel, joinPanel, connectedPanel, statusLabel);
             };
@@ -134,6 +136,7 @@ namespace LudoGame.UI
             var joinButton = new Button(() =>
             {
                 var name = root.Q<TextField>("PlayerNameJoinField").value;
+                _lastJoinedRoomCode = ad.RoomCode;
                 AttemptJoin(ad.HostIp, string.IsNullOrWhiteSpace(name) ? SaveSystem.Load().PlayerName : name,
                     root.Q<VisualElement>("ModeSelectPanel"), root.Q<VisualElement>("HostPanel"),
                     root.Q<VisualElement>("JoinPanel"), root.Q<VisualElement>("ConnectedPanel"),
@@ -163,10 +166,35 @@ namespace LudoGame.UI
             {
                 if (msg.Type == MessageType.GAME_START)
                 {
+                    _joinFlow.Session.RoomCode = _lastJoinedRoomCode;
                     var playerNames = new List<string> { playerName }; // client only knows its own name reliably pre-match
                     MatchStatsWiring.Wire(_joinFlow.Session, _joinFlow.Session.LocalColor, "LAN", playerNames, _manager);
+                    AttachMigration(_joinFlow.Session, playerName);
                     _manager.EnterGameplay(_joinFlow.Session);
                 }
+            };
+        }
+
+        // Watches a client session for a mid-match host disconnect and re-points the live
+        // gameplay screen (via GameSceneController.Rebind) at whatever session comes out the
+        // other side - a promoted LanHostSession, or a freshly reconnected LanClientSession.
+        // Re-attaching migration to that new client session (recursively) is what lets a
+        // *second* migration succeed too, if the newly-promoted host also later drops.
+        private void AttachMigration(LanClientSession session, string playerName)
+        {
+            var coordinator = new LanMigrationCoordinator(session, playerName);
+
+            coordinator.PromotedToHost += newHostSession =>
+            {
+                MatchStatsWiring.Wire(newHostSession, newHostSession.HostColor, "LAN", new List<string> { playerName }, _manager);
+                _manager.GameScene.Rebind(newHostSession);
+            };
+
+            coordinator.ReconnectedAsClient += newClientSession =>
+            {
+                MatchStatsWiring.Wire(newClientSession, newClientSession.LocalColor, "LAN", new List<string> { playerName }, _manager);
+                AttachMigration(newClientSession, playerName);
+                _manager.GameScene.Rebind(newClientSession);
             };
         }
 

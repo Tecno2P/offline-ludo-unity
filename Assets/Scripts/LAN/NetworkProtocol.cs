@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace LudoGame.LAN
 {
@@ -28,6 +29,8 @@ namespace LudoGame.LAN
         PLAYER_RECONNECT,
         GAME_END,
         HEARTBEAT,
+        TURN_TIMEOUT,
+        ROSTER_UPDATE,
     }
 
     [Serializable]
@@ -89,5 +92,20 @@ namespace LudoGame.LAN
         // Set by a client that previously had this PlayerId, so the host treats this as a
         // reconnect (keep their color/tokens) rather than a brand-new join.
         public int ExistingPlayerId = -1;
+    }
+
+    [Serializable]
+    public class RosterEntry
+    {
+        public int PlayerId;
+        public string PlayerName;
+        public int Color;
+        public bool Connected;
+    }
+
+    [Serializable]
+    public class RosterPayload
+    {
+        public List<RosterEntry> Players = new List<RosterEntry>();
     }
 }

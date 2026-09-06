@@ -41,6 +41,7 @@ namespace LudoGame.Gameplay
         event Action<MoveAppliedArgs> OnMoveApplied;
         event Action<PlayerColor> OnGameWon;
         event Action<PlayerColor> OnPlayerDisconnected; // never fires for local sessions
+        event Action<PlayerColor> OnTurnTimedOut; // never fires for local VS AI turns (AI never times out)
 
         void RequestRoll();
         void RequestMove(int tokenId);

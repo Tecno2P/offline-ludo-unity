@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LudoGame.Core;
 using LudoGame.Gameplay;
 using Newtonsoft.Json;
@@ -13,14 +14,24 @@ namespace LudoGame.LAN
         public GameState State { get; private set; }
         public PlayerColor CurrentTurn { get; private set; }
         public PlayerColor LocalColor => (PlayerColor)_client.AssignedColor;
+        public int LocalPlayerId => _client.PlayerId;
         public bool IsMyTurn => CurrentTurn == LocalColor;
+
+        // Kept in sync via ROSTER_UPDATE so this client always knows the full player list
+        // (id, name, color, connected) - this is what makes host migration possible: every
+        // client can independently work out who should become the new host.
+        public List<RosterEntry> Roster { get; private set; } = new List<RosterEntry>();
+        public string RoomCode { get; set; } // set by LanJoinFlow when known (discovered join); may stay null for manual-IP joins
+        public string SessionToken { get; private set; }
 
         public event Action<PlayerColor> OnTurnStarted;
         public event Action<DiceRolledArgs> OnDiceRolled;
         public event Action<MoveAppliedArgs> OnMoveApplied;
         public event Action<PlayerColor> OnGameWon;
         public event Action<PlayerColor> OnPlayerDisconnected;
+        public event Action<PlayerColor> OnTurnTimedOut;
         public event Action OnConnectionLost; // no ILudoGameSession equivalent - LAN-specific, UI can subscribe if it cares
+        public event Action OnRosterUpdated;
 
         public LanClientSession(Client client)
         {
@@ -36,6 +47,21 @@ namespace LudoGame.LAN
         // which arrives here as an ordinary TURN_START.
         public void Tick(float deltaTime) { }
 
+        // Whoever holds the lowest PlayerId among players the roster still shows as
+        // "supposed to be here" (i.e. everyone except the host, playerId 0, who we already
+        // know just dropped) is the agreed-upon next host - every surviving client computes
+        // this the same way independently, so no extra negotiation round-trip is needed.
+        public bool AmINextHost()
+        {
+            int? lowestOtherId = null;
+            foreach (var entry in Roster)
+            {
+                if (entry.PlayerId == 0) continue; // the old host - never a migration candidate
+                if (lowestOtherId == null || entry.PlayerId < lowestOtherId) lowestOtherId = entry.PlayerId;
+            }
+            return lowestOtherId.HasValue && lowestOtherId.Value == LocalPlayerId;
+        }
+
         private void HandleMessage(NetMessage msg)
         {
             switch (msg.Type)
@@ -43,6 +69,7 @@ namespace LudoGame.LAN
                 case MessageType.GAME_START:
                     State = JsonConvert.DeserializeObject<GameState>(msg.PayloadJson);
                     CurrentTurn = State.CurrentTurn;
+                    SessionToken = _client.SessionToken;
                     break;
 
                 case MessageType.TURN_START:
@@ -80,7 +107,7 @@ namespace LudoGame.LAN
                     break;
 
                 case MessageType.PLAYER_DISCONNECT:
-                    OnPlayerDisconnected?.Invoke(FindColorFromLocalState(msg.SenderPlayerId));
+                    OnPlayerDisconnected?.Invoke(FindColorFromRoster(msg.SenderPlayerId));
                     break;
 
                 case MessageType.PLAYER_RECONNECT:
@@ -88,6 +115,17 @@ namespace LudoGame.LAN
                     // trying to patch in whatever we missed while disconnected.
                     State = JsonConvert.DeserializeObject<GameState>(msg.PayloadJson);
                     CurrentTurn = State.CurrentTurn;
+                    break;
+
+                case MessageType.TURN_TIMEOUT:
+                    var timedOutColor = JsonConvert.DeserializeObject<PlayerColor>(msg.PayloadJson);
+                    OnTurnTimedOut?.Invoke(timedOutColor);
+                    break;
+
+                case MessageType.ROSTER_UPDATE:
+                    var roster = JsonConvert.DeserializeObject<RosterPayload>(msg.PayloadJson);
+                    Roster = roster.Players;
+                    OnRosterUpdated?.Invoke();
                     break;
             }
         }
@@ -109,11 +147,11 @@ namespace LudoGame.LAN
             }
         }
 
-        private PlayerColor FindColorFromLocalState(int playerId)
+        private PlayerColor FindColorFromRoster(int playerId)
         {
-            // Client doesn't keep a player-id-to-color roster (only the host does) - this is a
-            // best-effort fallback for UI notifications, not used for any rules decision.
-            return CurrentTurn;
+            foreach (var entry in Roster)
+                if (entry.PlayerId == playerId) return (PlayerColor)entry.Color;
+            return CurrentTurn; // roster hasn't arrived yet (shouldn't normally happen) - fall back rather than throw
         }
     }
 }
